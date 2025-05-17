@@ -87,7 +87,7 @@ func (n Notifier) RunSendingPipeline(period Period) {
 		per = "hourly"
 	}
 
-	result := n.subscriptionService.Db.Where("frequency = ?", per).Find(&subscribers)
+	result := n.subscriptionService.Db.Where("frequency = ? and confirmed = true", per).Find(&subscribers)
 	if result.Error != nil {
 		panic(result.Error)
 	}
