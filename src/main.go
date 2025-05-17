@@ -27,7 +27,7 @@ func main() {
 	if key == "" {
 		panic("WEATHER_API_ADDR is not set")
 	}
-	base_url := os.Getenv("APP_URL")
+	base_url := os.Getenv("BASE_URL")
 	hdr := os.Getenv("HTTPS")
 	if hdr == "1" {
 		base_url = "https://" + base_url
