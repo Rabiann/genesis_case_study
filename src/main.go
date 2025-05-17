@@ -53,13 +53,13 @@ func main() {
 		panic(err)
 	}
 
-	notifier := notification.NewNotifier(weatherService, subscriptionService, emailService)
+	notifier := notification.NewNotifier(weatherService, subscriptionService, emailService, tokenService)
 	go notifier.RunNotifier()
 
 	weatherController := controllers.WeatherController{WeatherService: weatherService}
 	subscriptionController := controllers.SubscriptionController{SubscriptionService: subscriptionService, TokenService: tokenService, EmailService: emailService, BaseUrl: base_url}
 	router := gin.Default()
-	router.LoadHTMLGlob("pages/*")
+	router.LoadHTMLGlob("templates/*")
 	router.StaticFile("/favicon.ico", "./static/weather.ico")
 
 	router.GET("/", func(ctx *gin.Context) {

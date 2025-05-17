@@ -18,11 +18,15 @@ type SubscriptionController struct {
 
 func (s SubscriptionController) Subscribe(ctx *gin.Context) {
 	var subscription services.Subscription
-	if err := ctx.BindJSON(&subscription); err != nil {
-		fmt.Println(err)
-		ctx.JSON(http.StatusBadRequest, nil)
-		return
-	}
+	// if err := ctx.BindJSON(&subscription); err != nil {
+	// 	fmt.Println(err)
+	// 	ctx.JSON(http.StatusBadRequest, nil)
+	// 	return
+	// }
+
+	subscription.Email = ctx.PostForm("email")
+	subscription.City = ctx.PostForm("city")
+	subscription.Frequency = ctx.PostForm("period")
 
 	id, err := s.SubscriptionService.AddSubscription(s.SubscriptionService.MapSubscription(subscription))
 	if err != nil {
@@ -46,37 +50,39 @@ func (s SubscriptionController) Subscribe(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(200, url)
+	ctx.HTML(http.StatusOK, "needconfirmation.html", gin.H{})
 }
 
 func (s SubscriptionController) Confirm(ctx *gin.Context) {
+	handleTokenErr := func(ctx *gin.Context, err error) {
+		fmt.Println(err)
+		ctx.HTML(http.StatusBadRequest, "registrationfailed.html", gin.H{})
+	}
+
 	token, err := uuid.Parse(ctx.Param("token"))
 	if err != nil {
-		fmt.Println(err)
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "please use correct token"})
+		handleTokenErr(ctx, err)
 		return
 	}
 
 	if err := s.TokenService.UseToken(token); err != nil {
-		fmt.Println(err)
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "token is invalid"})
+		handleTokenErr(ctx, err)
 		return
 	}
 
 	subscriberId, err := s.TokenService.GetSubscription(token)
 	if err != nil {
-		fmt.Println(err)
-		ctx.JSON(http.StatusBadRequest, nil)
+		handleTokenErr(ctx, err)
 		return
 	}
 
-	if err := s.SubscriptionService.ActivateSubscription(subscriberId); err != nil {
-		fmt.Println(err)
-		ctx.JSON(http.StatusBadRequest, nil)
+	_, err = s.SubscriptionService.ActivateSubscription(subscriberId)
+	if err != nil {
+		handleTokenErr(ctx, err)
 		return
 	}
 
-	ctx.JSON(http.StatusOK, nil)
+	ctx.HTML(http.StatusOK, "registration.html", gin.H{})
 }
 
 func (s SubscriptionController) Unsubscribe(ctx *gin.Context) {
@@ -86,17 +92,17 @@ func (s SubscriptionController) Unsubscribe(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "please use correct token"})
 		return
 	}
-
-	if err := s.TokenService.UseToken(token); err != nil {
-		fmt.Println(err)
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "token is invalid"})
-		return
-	}
-
 	subscriberId, err := s.TokenService.GetSubscription(token)
 	if err != nil {
 		fmt.Println(err)
 		ctx.JSON(http.StatusBadRequest, nil)
+		return
+	}
+	fmt.Println("subscribet id: ", subscriberId)
+
+	if err := s.TokenService.UseToken(token); err != nil {
+		fmt.Println(err)
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "token is invalid"})
 		return
 	}
 
@@ -106,5 +112,5 @@ func (s SubscriptionController) Unsubscribe(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, nil)
+	ctx.HTML(http.StatusOK, "unsubscription.html", gin.H{})
 }

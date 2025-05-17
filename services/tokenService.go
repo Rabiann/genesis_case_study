@@ -2,6 +2,7 @@ package services
 
 import (
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/Rabiann/weather-mailer/services/models"
@@ -22,6 +23,7 @@ func (t TokenService) CreateToken(subscriptionId uint) (uuid.UUID, error) {
 		Expires:        time.Now().Add(time.Hour * 24),
 	}
 
+	fmt.Println("create token: ", token)
 	result := t.Db.Create(&token)
 	return id, result.Error
 }
@@ -31,6 +33,7 @@ func (t TokenService) GetSubscription(id uuid.UUID) (uint, error) {
 	token.ID = id
 
 	result := t.Db.Find(&token)
+	fmt.Println("get subscription:", token)
 	return token.SubscriptionID, result.Error
 }
 

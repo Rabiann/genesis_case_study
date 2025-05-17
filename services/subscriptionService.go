@@ -48,18 +48,18 @@ func (s SubscriptionService) AddSubscription(subscription models.Subscription) (
 	return subscription.ID, result.Error
 }
 
-func (s SubscriptionService) ActivateSubscription(id uint) error {
+func (s SubscriptionService) ActivateSubscription(id uint) (string, error) {
 	var subscription models.Subscription
 	subscription.ID = id
 
 	result := s.Db.Find(&subscription)
 	if result.Error != nil {
-		return result.Error
+		return "", result.Error
 	}
 
 	subscription.Confirmed = true
 	result = s.Db.Save(subscription)
-	return result.Error
+	return subscription.Email, result.Error
 }
 
 func (s SubscriptionService) UpdateSubscription(id uint, new_subscription models.Subscription) error {
@@ -86,8 +86,8 @@ func (s SubscriptionService) UpdateSubscription(id uint, new_subscription models
 }
 
 func (s SubscriptionService) DeleteSubscription(id uint) error {
-	subscription := models.Subscription{ID: id}
-	result := s.Db.Delete(&subscription)
+	result := s.Db.Delete(&models.Subscription{}, id)
+	fmt.Println(result.RowsAffected)
 	return result.Error
 }
 

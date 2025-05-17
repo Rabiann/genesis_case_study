@@ -2,6 +2,7 @@ package notification
 
 import (
 	"fmt"
+	"os"
 	"time"
 
 	"github.com/Rabiann/weather-mailer/services"
@@ -22,13 +23,15 @@ type Notifier struct {
 	weatherService      services.WeatherService
 	subscriptionService services.SubscriptionService
 	mailingService      services.MailingService
+	tokenService        services.TokenService
 }
 
-func NewNotifier(weatherService services.WeatherService, subscriptionService services.SubscriptionService, mailingService services.MailingService) Notifier {
+func NewNotifier(weatherService services.WeatherService, subscriptionService services.SubscriptionService, mailingService services.MailingService, tokenService services.TokenService) Notifier {
 	return Notifier{
 		weatherService:      weatherService,
 		subscriptionService: subscriptionService,
 		mailingService:      mailingService,
+		tokenService:        tokenService,
 	}
 }
 
@@ -87,12 +90,13 @@ func (n Notifier) RunSendingPipeline(period Period) {
 		per = "hourly"
 	}
 
-	result := n.subscriptionService.Db.Where("frequency = ? and confirmed = true", per).Find(&subscribers)
+	result := n.subscriptionService.Db.Where("frequency = ?", per).Find(&subscribers)
 	if result.Error != nil {
 		panic(result.Error)
 	}
 
 	for _, sub := range subscribers {
+		fmt.Println(sub)
 		weather, ok = cache[sub.City]
 		if !ok {
 			weather, err = n.weatherService.GetWeather(sub.City)
@@ -102,9 +106,21 @@ func (n Notifier) RunSendingPipeline(period Period) {
 
 			cache[sub.City] = weather
 		}
-
-		err := n.mailingService.SendWeatherReport(sub.Email, per, sub.City, weather)
+		token, err := n.tokenService.CreateToken(sub.ID)
 		if err != nil {
+			fmt.Println(err)
+		}
+
+		baseUrl := os.Getenv("BASE_URL")
+		if os.Getenv("HTTPS") == "1" {
+			baseUrl = "https://" + baseUrl
+		} else {
+			baseUrl = "http://" + baseUrl
+		}
+
+		url := fmt.Sprintf("%s/api/unsubscribe/%s", baseUrl, token)
+
+		if err = n.mailingService.SendWeatherReport(sub.Email, per, sub.City, weather, url); err != nil {
 			fmt.Println(err)
 		}
 	}

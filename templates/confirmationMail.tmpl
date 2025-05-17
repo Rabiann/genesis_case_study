@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registration Confirmation</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            background-color: #ffffff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .header {
+            background-color: #4a90e2;
+            padding: 20px;
+            text-align: center;
+            color: white;
+        }
+        .content {
+            padding: 30px;
+            text-align: center;
+        }
+        .button {
+            display: inline-block;
+            padding: 12px 24px;
+            background-color: #4a90e2;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+        .button:hover {
+            background-color: #357abd;
+        }
+        .footer {
+            background-color: #f4f4f4;
+            padding: 20px;
+            text-align: center;
+            font-size: 12px;
+            color: #666;
+        }
+        @media only screen and (max-width: 600px) {
+            .container {
+                margin: 10px;
+            }
+            .content {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Welcome!</h1>
+        </div>
+        <div class="content">
+            <h2>Confirm Your Registration</h2>
+            <p>Thank you for registering on our website! To complete the process, please confirm your email by clicking the button below:</p>
+            <a href="{}" class="button">Confirm Registration</a>
+            <p>If the button doesn't work, please copy and paste this link into your browser:</p>
+            <p><a href="{}">https://example.com/confirm?token=UNIQUE_TOKEN</a></p>
+        </div>
+        <div class="footer">
+            <p>If you did not register on our website, please ignore this email.</p>
+            <p>© 2025 Company Name. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>
