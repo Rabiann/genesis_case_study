@@ -1,0 +1,40 @@
+services:
+  postgres:
+    container_name: subscriptions_db
+    image: postgres:13.3
+    environment:
+      POSTGRES_PASSWORD: 1234
+      POSTGRES_USER: user
+      POSTGRES_DB: subscriptions
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "user"]
+      interval: 1m30s
+      timeout: 30s
+      retries: 5
+      start_period: 30s
+
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  api:
+    container_name: subscriptions_api
+    build: .
+    environment:
+      POSTGRES_HOST: subscriptions_db
+    env_file:
+      - .env
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - .:/usr/src/build
+    ports:
+      - "8000:8000"
+    command: "./api"
+
+volumes:
+  pgdata:
+    driver: local
