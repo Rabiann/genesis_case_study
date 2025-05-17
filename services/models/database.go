@@ -28,6 +28,16 @@ func NewConnectionString() ConnectionString {
 }
 
 func (c ConnectionString) GetConnectionString() string {
+	is_prod := os.Getenv("PROD")
+	if is_prod == "1" {
+		db_url := os.Getenv("PROD_DB_URL")
+		if db_url == "" {
+			panic("PROD_DB_URL not set")
+		}
+
+		return db_url
+	}
+
 	return fmt.Sprintf("host=%s port=5432 user=%s password=%s dbname=%s", c.Host, c.User, c.Password, c.DbName)
 }
 
