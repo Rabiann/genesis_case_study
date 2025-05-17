@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	"os"
 
@@ -15,11 +16,17 @@ import (
 func main() {
 	err := godotenv.Load(".env")
 	if err != nil {
-		panic(err)
+		fmt.Println("No .env found")
 	}
 
 	key := os.Getenv("WEATHER_API_KEY")
+	if key == "" {
+		panic("WEATHER_API_KEY is not set")
+	}
 	addr := os.Getenv("WEATHER_API_ADDR")
+	if key == "" {
+		panic("WEATHER_API_ADDR is not set")
+	}
 	base_url := os.Getenv("BASE_URL")
 
 	db := models.ConnectToDatabase()
