@@ -13,6 +13,7 @@ type SubscriptionController struct {
 	SubscriptionService services.SubscriptionService
 	TokenService        services.TokenService
 	EmailService        services.MailingService
+	BaseUrl             string
 }
 
 func (s SubscriptionController) Subscribe(ctx *gin.Context) {
@@ -37,7 +38,7 @@ func (s SubscriptionController) Subscribe(ctx *gin.Context) {
 		return
 	}
 
-	url := fmt.Sprintf("http://localhost:8000/api/confirm/%s", token)
+	url := fmt.Sprintf("%s/api/confirm/%s", s.BaseUrl, token)
 
 	if err := s.EmailService.SendConfirmationLetter(subscription.Email, url); err != nil {
 		fmt.Println(err)

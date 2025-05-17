@@ -20,6 +20,7 @@ func main() {
 
 	key := os.Getenv("WEATHER_API_KEY")
 	addr := os.Getenv("WEATHER_API_ADDR")
+	base_url := os.Getenv("BASE_URL")
 
 	db := models.ConnectToDatabase()
 
@@ -43,7 +44,7 @@ func main() {
 	go notifier.RunNotifier()
 
 	weatherController := controllers.WeatherController{WeatherService: weatherService}
-	subscriptionController := controllers.SubscriptionController{SubscriptionService: subscriptionService, TokenService: tokenService, EmailService: emailService}
+	subscriptionController := controllers.SubscriptionController{SubscriptionService: subscriptionService, TokenService: tokenService, EmailService: emailService, BaseUrl: base_url}
 	router := gin.Default()
 	router.LoadHTMLGlob("pages/*")
 	router.StaticFile("/favicon.ico", "./static/weather.ico")
