@@ -57,6 +57,10 @@ func (s SubscriptionService) ActivateSubscription(id uint) (string, error) {
 		return "", result.Error
 	}
 
+	if subscription.Confirmed {
+		return "", errors.New("Subscription already confirmed")
+	}
+
 	subscription.Confirmed = true
 	result = s.Db.Save(subscription)
 	return subscription.Email, result.Error

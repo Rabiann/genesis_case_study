@@ -54,7 +54,7 @@ func (s MailingService) buildWeatherLetter(city string, temp string, humid strin
 	return let
 }
 
-func (s MailingService) SendConfirmationLetter(recipient string, confirmationUrl string) error {
+func (s MailingService) SendConfirmationLetterWithAPI(recipient string, confirmationUrl string) error {
 	from := mailersend.From{
 		Name:  "Confirmator",
 		Email: os.Getenv("SENDER_MAIL"),

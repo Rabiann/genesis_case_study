@@ -4,7 +4,7 @@ import "time"
 
 type Subscription struct {
 	ID        uint
-	Email     string
+	Email     string `gorm:"unique"`
 	City      string
 	Frequency string
 	Confirmed bool

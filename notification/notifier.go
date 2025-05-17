@@ -3,6 +3,8 @@ package notification
 import (
 	"fmt"
 	"os"
+	"strings"
+	"sync"
 	"time"
 
 	"github.com/Rabiann/weather-mailer/services"
@@ -18,6 +20,49 @@ const (
 	Hourly Period = iota
 	Daily
 )
+
+type AsyncCache struct {
+	cache map[string]services.Weather
+	mu    sync.RWMutex
+}
+
+type Semaphore struct {
+	c chan struct{}
+}
+
+func (s *Semaphore) Acquire() {
+	s.c <- struct{}{}
+}
+
+func (s *Semaphore) Release() {
+	<-s.c
+}
+
+func NewSemaphore(wCount int) Semaphore {
+	c := make(chan struct{}, wCount)
+	return Semaphore{c: c}
+}
+
+func NewAsyncCache() AsyncCache {
+	cache := make(map[string]services.Weather)
+	return AsyncCache{
+		cache: cache,
+		mu:    sync.RWMutex{},
+	}
+}
+
+func (c *AsyncCache) Read(key string) (services.Weather, bool) {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+	wth, ok := c.cache[key]
+	return wth, ok
+}
+
+func (c *AsyncCache) Write(key string, value services.Weather) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	c.cache[key] = value
+}
 
 type Notifier struct {
 	weatherService      services.WeatherService
@@ -78,11 +123,10 @@ func (n Notifier) RunNotifier() {
 func (n Notifier) RunSendingPipeline(period Period) {
 	var subscribers []models.Subscription
 	var per string
-	var weather services.Weather
-	var ok bool
 	var err error
 
-	cache := make(map[string]services.Weather)
+	cache := NewAsyncCache()
+	semaphore := NewSemaphore(10)
 
 	if period == Daily {
 		per = "daily"
@@ -90,38 +134,47 @@ func (n Notifier) RunSendingPipeline(period Period) {
 		per = "hourly"
 	}
 
-	result := n.subscriptionService.Db.Where("frequency = ?", per).Find(&subscribers)
+	result := n.subscriptionService.Db.Where("frequency = ? and confirmed = true", per).Find(&subscribers)
 	if result.Error != nil {
 		panic(result.Error)
 	}
 
 	for _, sub := range subscribers {
 		fmt.Println(sub)
-		weather, ok = cache[sub.City]
-		if !ok {
-			weather, err = n.weatherService.GetWeather(sub.City)
-			if err != nil {
-				panic(err)
+		semaphore.Acquire()
+		go func(models.Subscription) {
+			city := strings.ToLower(sub.City)
+			weather, ok := cache.Read(city)
+
+			if !ok {
+				weather, err = n.weatherService.GetWeather(city)
+				if err != nil {
+					fmt.Println(err)
+					return
+				}
+
+				cache.Write(sub.City, weather)
 			}
 
-			cache[sub.City] = weather
-		}
-		token, err := n.tokenService.CreateToken(sub.ID)
-		if err != nil {
-			fmt.Println(err)
-		}
+			token, err := n.tokenService.CreateToken(sub.ID)
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
 
-		baseUrl := os.Getenv("BASE_URL")
-		if os.Getenv("HTTPS") == "1" {
-			baseUrl = "https://" + baseUrl
-		} else {
-			baseUrl = "http://" + baseUrl
-		}
+			baseUrl := os.Getenv("BASE_URL")
+			if os.Getenv("HTTPS") == "1" {
+				baseUrl = "https://" + baseUrl
+			} else {
+				baseUrl = "http://" + baseUrl
+			}
 
-		url := fmt.Sprintf("%s/api/unsubscribe/%s", baseUrl, token)
+			url := fmt.Sprintf("%s/api/unsubscribe/%s", baseUrl, token)
 
-		if err = n.mailingService.SendWeatherReport(sub.Email, per, sub.City, weather, url); err != nil {
-			fmt.Println(err)
-		}
+			if err = n.mailingService.SendWeatherReport(sub.Email, per, sub.City, weather, url); err != nil {
+				fmt.Println(err)
+			}
+		}(sub)
+		semaphore.Release()
 	}
 }

@@ -20,7 +20,6 @@ func NewConnectionString() ConnectionString {
 	cs := ConnectionString{}
 	cs.User = os.Getenv("POSTGRES_USER")
 	cs.Password = os.Getenv("POSTGRES_PASSWORD")
-	// cs.Port = os.Getenv("DB_PORT")
 	cs.DbName = os.Getenv("POSTGRES_DB")
 	cs.Host = os.Getenv("POSTGRES_HOST")
 
