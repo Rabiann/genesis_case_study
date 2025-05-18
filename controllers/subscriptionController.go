@@ -41,7 +41,7 @@ func (s SubscriptionController) Subscribe(ctx *gin.Context) {
 
 	url := fmt.Sprintf("%s/api/confirm/%s", s.BaseUrl, token)
 
-	if err := s.EmailService.SendConfirmationLetterWithAPI(subscription.Email, url); err != nil {
+	if err := s.EmailService.SendConfirmationLetter(subscription.Email, url); err != nil {
 		fmt.Println(err)
 		ctx.JSON(http.StatusBadRequest, nil)
 		return
