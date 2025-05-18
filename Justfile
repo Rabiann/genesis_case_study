@@ -1,7 +1,13 @@
 run:
-    go run ./src
+    docker compose -f compose.yaml up
 
-test:
+build:
+    docker compose -f compose.yaml build
+
+clean:
+    docker compose down -v
+
+start:
     docker compose down -v
     docker compose -f compose.yaml build
     docker compose -f compose.yaml up

@@ -2,7 +2,6 @@ package services
 
 import (
 	"errors"
-	"fmt"
 
 	"github.com/Rabiann/weather-mailer/services/models"
 	"gorm.io/gorm"
@@ -41,7 +40,6 @@ func (s SubscriptionService) GetSubscriptionById(id uint) (models.Subscription, 
 
 func (s SubscriptionService) AddSubscription(subscription models.Subscription) (uint, error) {
 	if s.Db == nil {
-		fmt.Println("DB IS UNITIALIZED")
 		return 0, nil
 	}
 	result := s.Db.Create(&subscription)
@@ -91,7 +89,6 @@ func (s SubscriptionService) UpdateSubscription(id uint, new_subscription models
 
 func (s SubscriptionService) DeleteSubscription(id uint) error {
 	result := s.Db.Delete(&models.Subscription{}, id)
-	fmt.Println(result.RowsAffected)
 	return result.Error
 }
 

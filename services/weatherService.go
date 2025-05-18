@@ -56,8 +56,6 @@ func (w WeatherService) GetWeather(city string) (Weather, error) {
 		return weather, err
 	}
 
-	fmt.Println(weatherResponse)
-
 	weather.Description = weatherResponse.Text
 	weather.Humidity = weatherResponse.Humidity
 	weather.Temperature = weatherResponse.Temperature

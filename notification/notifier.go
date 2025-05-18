@@ -140,7 +140,6 @@ func (n Notifier) RunSendingPipeline(period Period) {
 	}
 
 	for _, sub := range subscribers {
-		fmt.Println(sub)
 		semaphore.Acquire()
 		go func(models.Subscription) {
 			city := strings.ToLower(sub.City)
@@ -149,7 +148,6 @@ func (n Notifier) RunSendingPipeline(period Period) {
 			if !ok {
 				weather, err = n.weatherService.GetWeather(city)
 				if err != nil {
-					fmt.Println(err)
 					return
 				}
 
@@ -158,7 +156,6 @@ func (n Notifier) RunSendingPipeline(period Period) {
 
 			token, err := n.tokenService.CreateToken(sub.ID)
 			if err != nil {
-				fmt.Println(err)
 				return
 			}
 
@@ -172,7 +169,6 @@ func (n Notifier) RunSendingPipeline(period Period) {
 			url := fmt.Sprintf("%s/api/unsubscribe/%s", baseUrl, token)
 
 			if err = n.mailingService.SendWeatherReport(sub.Email, per, sub.City, weather, url); err != nil {
-				fmt.Println(err)
 			}
 		}(sub)
 		semaphore.Release()

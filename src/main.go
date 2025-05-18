@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
 	"os"
 
@@ -14,10 +13,7 @@ import (
 )
 
 func main() {
-	err := godotenv.Load(".env")
-	if err != nil {
-		fmt.Println("No .env found")
-	}
+	_ = godotenv.Load(".env")
 
 	key := os.Getenv("WEATHER_API_KEY")
 	if key == "" {
