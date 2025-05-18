@@ -1,29 +1,51 @@
-# Weather API Application
+# Weather API Application (test task for Genesis Software Engineering School 5.0)
 
-Build a weather API application that allows users to subscribe to weather updates for a choosen city. You can use any free Weather API (e.g [WeatherAPI.com](https://www.weatherapi.com/my))
+## Quickstart
 
-## Endpoints
-
-Implement the next endpoints:
-
-- `GET /api/weather?city={city}` - Get current weather for a given city with `Temperature`, `Humidity` and `Weather description`
-- `POST /api/subscribe` - Subscribe a given `email` to weather updates for a given `city` with a given frequency (`daily` or `hourly`)
-- `GET /api/confirm/{token}` - Confirm email subscription (send a link to this endpoint on the confirmation email)
-- `GET /api/unsubscribe/{token}` - Unsubscribe from weather updates (send a link to this endpoint in each weather update)
-
-> **Note**: `swagger.yaml` file contains API documentation. You can watch it using [Swagger Editor](https://editor.swagger.io/).
+This is application for subscription on periodic weather updates. To keep it simple, it was written in a monolithic way.
 
 ## Requirements
+- Docker
+- Just
 
-Provide a link to your public Github repo containing:
+## Environment
 
-- The app implemented with `Node.js`, `PHP` or `Golang` using any libraries or frameworks.
-- Migrations to setup initial `PostgreSQL` DB structure.
-- `readme.md` file explainig what was done and how to run the app locally
-- `Dockerfile` and `docker-compose.yml` to run the app with a single `docker compose up` command
+In order to provide needed tokens and URI's, setup environment variables:
+```env
+WEATHER_API_KEY="your weatherapi key"
+WEATHER_API_ADDR="http://api.weatherapi.com/v1/current.json?key=%s&q=%s&aqi=no"
+POSTGRES_DB="subscriptions"
+POSTGRES_USER="user"
+POSTGRES_PASSWORD="1234"
+SENDER_MAIL="your sender email"
+SENDGRID_API_KEY="your sendgrid api token"
+BASE_URL="localhost:8000"
+HTTPS=0
+PROD=0
+PROD_DB_URL="postgresql://user:SztMOYQzIuj25v1KBHohEwDVHMtLhwcg@dpg-d0k1jmffte5s73890qig-a.oregon-postgres.render.com/subscriptions_znxp"
+```
 
-## Extras
+## Docker running
 
-- deploy your API to some hosting (e.g., [Render](https://render.com/docs/docker))
-- Create a simple HTML page to initiate the subscription
-- Cover the API with functional tests
+- Building
+```console
+just build
+```
+
+- Running
+```console
+just run
+```
+
+- Dropping running containers
+```console
+just clean
+```
+
+- Starting
+```console
+just start
+```
+
+## Accessing deployed
+[Weather Subscription](https://genesiscasestudy-production.up.railway.app/)(Railway) 
