@@ -22,7 +22,7 @@ SENDGRID_API_KEY="your sendgrid api token"
 BASE_URL="localhost:8000"
 HTTPS=0
 PROD=0
-PROD_DB_URL="postgresql://user:SztMOYQzIuj25v1KBHohEwDVHMtLhwcg@dpg-d0k1jmffte5s73890qig-a.oregon-postgres.render.com/subscriptions_znxp"
+PROD_DB_URL="your prod db"
 ```
 
 ## Docker running
