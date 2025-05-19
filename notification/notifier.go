@@ -142,6 +142,7 @@ func (n Notifier) RunSendingPipeline(period Period) {
 	for _, sub := range subscribers {
 		semaphore.Acquire()
 		go func(models.Subscription) {
+			defer semaphore.Release()
 			city := strings.ToLower(sub.City)
 			weather, ok := cache.Read(city)
 
@@ -170,7 +171,6 @@ func (n Notifier) RunSendingPipeline(period Period) {
 
 			if err = n.mailingService.SendWeatherReport(sub.Email, per, sub.City, weather, url); err != nil {
 			}
-			semaphore.Release()
 		}(sub)
 	}
 }
