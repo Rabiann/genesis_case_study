@@ -102,7 +102,7 @@ func (n Notifier) RunNotifier() {
 
 	_, err = s.NewJob(
 		gocron.DurationJob(
-			time.Hour,
+			time.Minute,
 		),
 		gocron.NewTask(
 			n.RunSendingPipeline,
@@ -170,7 +170,7 @@ func (n Notifier) RunSendingPipeline(period Period) {
 
 			if err = n.mailingService.SendWeatherReport(sub.Email, per, sub.City, weather, url); err != nil {
 			}
+			semaphore.Release()
 		}(sub)
-		semaphore.Release()
 	}
 }
