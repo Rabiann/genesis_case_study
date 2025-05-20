@@ -102,7 +102,7 @@ func (n Notifier) RunNotifier() {
 
 	_, err = s.NewJob(
 		gocron.DurationJob(
-			time.Minute,
+			time.Hour,
 		),
 		gocron.NewTask(
 			n.RunSendingPipeline,
